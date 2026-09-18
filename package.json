@@ -42,7 +42,7 @@
       "type": "password",
       "required": true,
       "title": "API Key",
-      "description": "Key for the selected provider. ExchangeRate-API: https://app.exchangerate-api.com/dashboard — UniRateAPI: https://unirateapi.com/dashboard",
+      "description": "Key for the selected provider. ExchangeRate-API: https://app.exchangerate-api.com/keys — UniRateAPI: https://unirateapi.com/settings",
       "placeholder": "API key for the selected provider"
     }
   ],

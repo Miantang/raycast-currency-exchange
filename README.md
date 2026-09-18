@@ -20,8 +20,8 @@ This fork uses **CNY (Chinese Renminbi)** as the default source currency when no
 - macOS with Raycast installed
 - Node.js and npm
 - An API key from either:
-  - [ExchangeRate-API](https://www.exchangerate-api.com/)
-  - [UniRateAPI](https://unirateapi.com/)
+  - [ExchangeRate-API — API Keys](https://app.exchangerate-api.com/keys)
+  - [UniRateAPI — Settings](https://unirateapi.com/settings)
 
 ## Install privately on macOS
 

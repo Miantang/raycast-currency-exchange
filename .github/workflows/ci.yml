@@ -20,10 +20,18 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run lint
-      - run: npm run bundle
-      - name: Upload Raycast extension bundle
+      - name: Create personal macOS installer
+        run: |
+          mkdir -p release/currency-exchange-cny
+          cp -R assets src release/currency-exchange-cny/
+          cp .eslintrc.json .prettierrc CHANGELOG.md LICENSE README.md package.json package-lock.json raycast-env.d.ts tsconfig.json release/currency-exchange-cny/
+          cp scripts/install.command release/currency-exchange-cny/install.command
+          chmod +x release/currency-exchange-cny/install.command
+          cd release
+          zip -r currency-exchange-cny-macos.zip currency-exchange-cny
+      - name: Upload personal macOS installer
         uses: actions/upload-artifact@v4
         with:
-          name: currency-exchange-cny-rayext
-          path: currency-exchange-cny.rayext
+          name: currency-exchange-cny-macos-installer
+          path: release/currency-exchange-cny-macos.zip
           if-no-files-found: error

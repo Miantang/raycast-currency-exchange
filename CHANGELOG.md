@@ -1,5 +1,11 @@
 # Currency Exchange Changelog
 
+## [Add Private macOS Installer] - 2026-09-18
+
+- Package the extension source and a one-time `install.command` in GitHub Actions.
+- Import the extension locally without publishing it to the Raycast Store.
+- Keep the installed source in a stable Application Support directory for easy updates.
+
 ## [Improve Result Layout] - 2026-09-18
 
 - Show the converted amount as the primary, larger text in every result row.

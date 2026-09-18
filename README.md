@@ -23,16 +23,19 @@ This fork uses **CNY (Chinese Renminbi)** as the default source currency when no
   - [ExchangeRate-API](https://www.exchangerate-api.com/)
   - [UniRateAPI](https://unirateapi.com/)
 
-## Install the packaged extension
+## Install privately on macOS
 
-Every GitHub Actions build produces `currency-exchange-cny.rayext`:
+Every GitHub Actions build produces a personal installer. The extension is imported locally and is not published to the Raycast Store.
 
 1. Open the latest successful run on the repository's **Actions** page.
-2. Download the `currency-exchange-cny-rayext` artifact.
-3. Unzip the downloaded GitHub artifact.
-4. Open `currency-exchange-cny.rayext` to import it into Raycast.
+2. Download the `currency-exchange-cny-macos-installer` artifact.
+3. Unzip the GitHub artifact, then unzip `currency-exchange-cny-macos.zip`.
+4. Open the extracted `currency-exchange-cny` folder and double-click `install.command`.
+5. If macOS blocks it, Control-click `install.command`, choose **Open**, and confirm.
 
-The `.rayext` file is an optimized Raycast extension archive built by the official Raycast CLI. It does not require a continuously running `npm run dev` process.
+The installer requires Raycast and Node.js 22.14 or newer. It copies the extension to `~/Library/Application Support/Raycast Extensions/currency-exchange-cny`, installs its dependencies, and imports it into Raycast. The development process stops automatically after import; it does not need to stay running.
+
+To install an update on this Mac or another Mac, download the newest CI artifact and run its `install.command` again.
 
 ## Install as a development extension
 

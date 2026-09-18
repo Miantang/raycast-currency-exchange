@@ -1,5 +1,11 @@
 # Currency Exchange Changelog
 
+## [Add Installable Bundle] - 2026-09-18
+
+- Upgrade to Raycast API 2.4.1.
+- Build an installable `.rayext` archive in GitHub Actions.
+- Upload the archive as a downloadable workflow artifact.
+
 ## [CNY-first fork] - 2026-09-18
 
 - Use CNY as the source currency when no saved source currency exists.

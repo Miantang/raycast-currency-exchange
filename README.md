@@ -23,7 +23,18 @@ This fork uses **CNY (Chinese Renminbi)** as the default source currency when no
   - [ExchangeRate-API](https://www.exchangerate-api.com/)
   - [UniRateAPI](https://unirateapi.com/)
 
-## Install as a Raycast development extension
+## Install the packaged extension
+
+Every GitHub Actions build produces `currency-exchange-cny.rayext`:
+
+1. Open the latest successful run on the repository's **Actions** page.
+2. Download the `currency-exchange-cny-rayext` artifact.
+3. Unzip the downloaded GitHub artifact.
+4. Open `currency-exchange-cny.rayext` to import it into Raycast.
+
+The `.rayext` file is an optimized Raycast extension archive built by the official Raycast CLI. It does not require a continuously running `npm run dev` process.
+
+## Install as a development extension
 
 ```bash
 git clone https://github.com/Miantang/raycast-currency-exchange.git
@@ -32,7 +43,9 @@ npm install
 npm run dev
 ```
 
-`npm run dev` builds the extension and registers it with Raycast. After it appears in Raycast, search for **Currency Exchange for Yuan**. You can assign a global hotkey in Raycast Settings → Extensions.
+`npm run dev` builds the extension and registers it with Raycast. You only need to do this once for installation; the extension remains available after the development process stops. Run it again only when you want Raycast to pick up source changes with live reload.
+
+After it appears in Raycast, search for **Currency Exchange for Yuan**. You can assign a global hotkey in Raycast Settings → Extensions.
 
 ## Verify the build
 
@@ -40,9 +53,10 @@ npm run dev
 npm ci
 npm run build
 npm run lint
+npm run bundle
 ```
 
-The production bundle is generated in `dist/` and is intentionally ignored by Git.
+`npm run bundle` generates `currency-exchange-cny.rayext` in the project root.
 
 ## Upstream and license
 

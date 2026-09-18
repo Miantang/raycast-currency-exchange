@@ -14,8 +14,8 @@ import {
 import fetch, { Response, AbortError } from "node-fetch";
 import { currencyCode2Name, currencyCode2CountryAndRegion } from "./currency";
 
-const STORAGE_KEY_FROM_CURRENCY_CODE = "fromCurrencyCode";
 const STORAGE_KEY_PINNED_CURRENCY_CODE = "pinnedCurrencyCode";
+const QUICK_SOURCE_CURRENCIES = ["CNY", "USD"];
 
 type Provider = "exchangerate-api" | "unirate";
 
@@ -46,19 +46,12 @@ export default function Command() {
 
   useEffect(() => {
     (async () => {
-      const fromCodeCurrency = await LocalStorage.getItem<string>(STORAGE_KEY_FROM_CURRENCY_CODE);
       const pinnedCodeCurrencyText = await LocalStorage.getItem<string>(STORAGE_KEY_PINNED_CURRENCY_CODE);
       if (pinnedCodeCurrencyText) {
         console.log(pinnedCodeCurrencyText);
         setState((oldState) => ({
           ...oldState,
           pinnedCurrencyCodes: JSON.parse(pinnedCodeCurrencyText),
-        }));
-      }
-      if (fromCodeCurrency) {
-        setState((oldState) => ({
-          ...oldState,
-          fromCurrencyCode: fromCodeCurrency,
         }));
       }
     })();
@@ -76,18 +69,31 @@ export default function Command() {
           tooltip="From Currency"
           value={state.fromCurrencyCode}
           onChange={(newValue) => {
-            LocalStorage.setItem(STORAGE_KEY_FROM_CURRENCY_CODE, newValue);
             setState((previous) => ({ ...previous, fromCurrencyCode: newValue }));
           }}
         >
-          {Object.keys(currencyCode2CountryAndRegion).map((currencyCode: string) => (
-            <List.Dropdown.Item
-              key={`from-${currencyCode}`}
-              title={`${currencyCode} - ${currencyCode2CountryAndRegion[currencyCode]}`}
-              value={currencyCode}
-              icon={getFlagEmoji(currencyCode.substring(0, 2))}
-            />
-          ))}
+          <List.Dropdown.Section title="Quick Select">
+            {QUICK_SOURCE_CURRENCIES.map((currencyCode) => (
+              <List.Dropdown.Item
+                key={`quick-from-${currencyCode}`}
+                title={`${currencyCode} - ${formatCurrencyName(currencyCode)}`}
+                value={currencyCode}
+                icon={getFlagEmoji(currencyCode.substring(0, 2))}
+              />
+            ))}
+          </List.Dropdown.Section>
+          <List.Dropdown.Section title="All Currencies">
+            {Object.keys(currencyCode2CountryAndRegion)
+              .filter((currencyCode) => !QUICK_SOURCE_CURRENCIES.includes(currencyCode))
+              .map((currencyCode: string) => (
+                <List.Dropdown.Item
+                  key={`from-${currencyCode}`}
+                  title={`${currencyCode} - ${formatCurrencyName(currencyCode)}`}
+                  value={currencyCode}
+                  icon={getFlagEmoji(currencyCode.substring(0, 2))}
+                />
+              ))}
+          </List.Dropdown.Section>
         </List.Dropdown>
       }
     >
@@ -143,11 +149,9 @@ function Exchange({
             {currencyResult.conversion_rate_pin_exchanged?.map((item: ConversionRate, index: number) => (
               <List.Item
                 key={index}
-                title={item.code}
-                subtitle={
-                  item.value !== Number.POSITIVE_INFINITY ? formatCurrency(item.value, item.code) : "No Currency"
-                }
-                accessories={[{ text: currencyCode2Name[item.code], icon: Icon.Pin }]}
+                title={item.value !== Number.POSITIVE_INFINITY ? formatCurrency(item.value, item.code) : "No Currency"}
+                subtitle={item.code}
+                accessories={[{ text: formatCurrencyName(item.code), icon: Icon.Pin }]}
                 icon={{ source: getFlagEmoji(item.code.substring(0, 2)) }}
                 actions={
                   <ExchangeResultActionPanel
@@ -174,9 +178,9 @@ function Exchange({
             {currencyResult.conversion_rate_exchanged?.map((item: ConversionRate, index: number) => (
               <List.Item
                 key={index}
-                title={item.code}
-                subtitle={item.value !== Number.POSITIVE_INFINITY ? formatCurrency(item.value, item.code) : "∞"}
-                accessories={[{ text: currencyCode2Name[item.code] }]}
+                title={item.value !== Number.POSITIVE_INFINITY ? formatCurrency(item.value, item.code) : "∞"}
+                subtitle={item.code}
+                accessories={[{ text: formatCurrencyName(item.code) }]}
                 icon={{ source: getFlagEmoji(item.code.substring(0, 2)) }}
                 actions={
                   <ExchangeResultActionPanel
@@ -208,6 +212,18 @@ function ExchangeResultActionPanel(props: {
   return (
     <ActionPanel>
       <Action.CopyToClipboard content={copyContent} />
+      <Action
+        title="Use CNY as Source"
+        icon={getFlagEmoji("CN")}
+        shortcut={{ modifiers: ["cmd"], key: "1" }}
+        onAction={() => setState((oldState) => ({ ...oldState, fromCurrencyCode: "CNY" }))}
+      />
+      <Action
+        title="Use USD as Source"
+        icon={getFlagEmoji("US")}
+        shortcut={{ modifiers: ["cmd"], key: "2" }}
+        onAction={() => setState((oldState) => ({ ...oldState, fromCurrencyCode: "USD" }))}
+      />
       <Action
         icon={Icon.Pin}
         onAction={() => {
@@ -660,6 +676,17 @@ function formatCurrency(amount: number, currencyCode: string): string {
   } catch (error) {
     console.error(`Error formatting currency: ${error}`);
     return amount.toString();
+  }
+}
+
+function formatCurrencyName(currencyCode: string): string {
+  const englishName = currencyCode2Name[currencyCode] || currencyCode;
+  try {
+    const chineseName = new Intl.DisplayNames(["zh-CN"], { type: "currency" }).of(currencyCode) || currencyCode;
+    return `${chineseName}(${englishName.toLowerCase()})`;
+  } catch (error) {
+    console.error(`Error formatting currency name: ${error}`);
+    return englishName;
   }
 }
 

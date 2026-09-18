@@ -1,5 +1,11 @@
 # Currency Exchange Changelog
 
+## [Improve Result Layout] - 2026-09-18
+
+- Show the converted amount as the primary, larger text in every result row.
+- Add Chinese and English currency names as right-aligned metadata.
+- Put CNY and USD at the top of the source-currency selector and always start from CNY.
+
 ## [Add Installable Bundle] - 2026-09-18
 
 - Upgrade to Raycast API 2.4.1.

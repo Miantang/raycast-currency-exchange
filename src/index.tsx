@@ -10,11 +10,11 @@ import {
   LocalStorage,
   Form,
   useNavigation,
+  openExtensionPreferences,
 } from "@raycast/api";
 import fetch, { Response, AbortError } from "node-fetch";
 import { currencyCode2Name, currencyCode2CountryAndRegion } from "./currency";
 
-const STORAGE_KEY_PINNED_CURRENCY_CODE = "pinnedCurrencyCode";
 const QUICK_SOURCE_CURRENCIES = ["CNY", "USD"];
 
 type Provider = "exchangerate-api" | "unirate";
@@ -43,19 +43,6 @@ function cacheKey(provider: Provider, historyDate: Date | null): string {
 
 export default function Command() {
   const { searchText, state, setState, setSearchTextAndExchange } = useSearchText();
-
-  useEffect(() => {
-    (async () => {
-      const pinnedCodeCurrencyText = await LocalStorage.getItem<string>(STORAGE_KEY_PINNED_CURRENCY_CODE);
-      if (pinnedCodeCurrencyText) {
-        console.log(pinnedCodeCurrencyText);
-        setState((oldState) => ({
-          ...oldState,
-          pinnedCurrencyCodes: JSON.parse(pinnedCodeCurrencyText),
-        }));
-      }
-    })();
-  }, []);
 
   return (
     <List
@@ -141,6 +128,22 @@ function Exchange({
     <>
       {currencyResult.conversion_rate_exchanged ? (
         <>
+          <List.Section title="Source Currency">
+            <List.Item
+              title={formatCurrency(state.amount || 0, state.fromCurrencyCode)}
+              subtitle={`${state.fromCurrencyCode} · 本币`}
+              accessories={[{ text: formatCurrencyName(state.fromCurrencyCode) }]}
+              icon={{ source: getFlagEmoji(state.fromCurrencyCode.substring(0, 2)) }}
+              actions={
+                <ExchangeResultActionPanel
+                  setState={setState}
+                  setSearchText={setSearchText}
+                  state={state}
+                  copyContent={formatCopyValue(state.amount || 0)}
+                />
+              }
+            />
+          </List.Section>
           <List.Section
             title={`Pinned Exchange from ${state.amount ? formatCurrency(state.amount, state.fromCurrencyCode) : 0} ${
               currencyCode2Name[state.fromCurrencyCode]
@@ -158,8 +161,7 @@ function Exchange({
                     setState={setState}
                     setSearchText={setSearchText}
                     state={state}
-                    toCurrencyCode={item.code}
-                    copyContent={item.value.toString()}
+                    copyContent={formatCopyValue(item.value)}
                   />
                 }
               />
@@ -187,8 +189,7 @@ function Exchange({
                     setState={setState}
                     setSearchText={setSearchText}
                     state={state}
-                    toCurrencyCode={item.code}
-                    copyContent={item.value.toString()}
+                    copyContent={formatCopyValue(item.value)}
                   />
                 }
               />
@@ -201,13 +202,12 @@ function Exchange({
 }
 
 function ExchangeResultActionPanel(props: {
-  toCurrencyCode: string;
   copyContent: string;
   state: ExchangeState;
   setState: React.Dispatch<React.SetStateAction<ExchangeState>>;
   setSearchText: (amountExpression: string) => void;
 }) {
-  const { toCurrencyCode, copyContent, state, setState, setSearchText } = props;
+  const { copyContent, state, setState, setSearchText } = props;
   const { push } = useNavigation();
   return (
     <ActionPanel>
@@ -224,34 +224,7 @@ function ExchangeResultActionPanel(props: {
         shortcut={{ modifiers: ["cmd"], key: "2" }}
         onAction={() => setState((oldState) => ({ ...oldState, fromCurrencyCode: "USD" }))}
       />
-      <Action
-        icon={Icon.Pin}
-        onAction={() => {
-          if (state.pinnedCurrencyCodes && state.pinnedCurrencyCodes.indexOf(toCurrencyCode) >= 0) {
-            //unpin it
-            const pinnedUpdated = state.pinnedCurrencyCodes.filter((item) => item !== toCurrencyCode);
-            LocalStorage.setItem(STORAGE_KEY_PINNED_CURRENCY_CODE, JSON.stringify(pinnedUpdated));
-            setState((oldState) => ({
-              ...oldState,
-              pinnedCurrencyCodes: pinnedUpdated,
-            }));
-          } else {
-            //pin it
-            const pinnedUpdated = state.pinnedCurrencyCodes
-              ? state.pinnedCurrencyCodes.concat(toCurrencyCode)
-              : [toCurrencyCode];
-            LocalStorage.setItem(STORAGE_KEY_PINNED_CURRENCY_CODE, JSON.stringify(pinnedUpdated));
-            setState((oldState) => ({
-              ...oldState,
-              pinnedCurrencyCodes: pinnedUpdated,
-            }));
-          }
-        }}
-        shortcut={{ modifiers: ["shift"], key: "return" }}
-        title={`${
-          state.pinnedCurrencyCodes && state.pinnedCurrencyCodes.indexOf(toCurrencyCode) >= 0 ? "Unpin It" : "Pin It"
-        }`}
-      />
+      <Action icon={Icon.Gear} title="Configure Pinned Currencies" onAction={openExtensionPreferences} />
       <Action
         title="Set Currency Date"
         icon={Icon.Clock}
@@ -287,6 +260,7 @@ function useExchange() {
     fromCurrencyCode: "CNY",
     filter: "",
     isLoading: true,
+    pinnedCurrencyCodes: getPinnedCurrencyCodes(),
   });
   const cancelRef = useRef<AbortController | null>(null);
 
@@ -677,6 +651,27 @@ function formatCurrency(amount: number, currencyCode: string): string {
     console.error(`Error formatting currency: ${error}`);
     return amount.toString();
   }
+}
+
+function formatCopyValue(amount: number): string {
+  return Number.isFinite(amount) ? amount.toFixed(2) : amount.toString();
+}
+
+function getPinnedCurrencyCodes(): Array<string> {
+  const { pinned_currencies = "" } = getPreferenceValues<Preferences>();
+  const seen = new Set<string>();
+
+  return pinned_currencies
+    .split(/[\s,;]+/)
+    .map((code) => code.trim().toUpperCase())
+    .filter(
+      (code) =>
+        code.length > 0 &&
+        !seen.has(code) &&
+        currencyCode2CountryAndRegion[code] !== undefined &&
+        currencyCode2Name[code] !== undefined &&
+        seen.add(code),
+    );
 }
 
 function formatCurrencyName(currencyCode: string): string {

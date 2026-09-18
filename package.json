@@ -44,6 +44,15 @@
       "title": "API Key",
       "description": "Key for the selected provider. ExchangeRate-API: https://app.exchangerate-api.com/keys — UniRateAPI: https://unirateapi.com/settings",
       "placeholder": "API key for the selected provider"
+    },
+    {
+      "name": "pinned_currencies",
+      "type": "textfield",
+      "required": false,
+      "title": "Pinned Currencies",
+      "description": "Comma-separated currency codes in display order. Invalid and duplicate codes are ignored.",
+      "default": "USD,EUR,GBP,AUD,CAD",
+      "placeholder": "USD,EUR,GBP,AUD,CAD"
     }
   ],
   "dependencies": {

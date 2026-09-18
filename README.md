@@ -11,7 +11,7 @@ This fork uses **CNY (Chinese Renminbi)** as the default source currency when no
 - Supports 160+ currencies
 - Supports arithmetic expressions such as `1+2/3*4`
 - Filters target currencies with queries such as `100 in USD`
-- Pins frequently used target currencies
+- Pins frequently used target currencies in a configurable order
 - Remembers an explicitly selected source currency
 - Supports ExchangeRate-API and UniRateAPI
 
@@ -20,8 +20,8 @@ This fork uses **CNY (Chinese Renminbi)** as the default source currency when no
 - macOS with Raycast installed
 - Node.js and npm
 - An API key from either:
-  - [ExchangeRate-API — API Keys](https://app.exchangerate-api.com/keys)
-  - [UniRateAPI — Settings](https://unirateapi.com/settings)
+  - [ExchangeRate-API](https://www.exchangerate-api.com/)
+  - [UniRateAPI](https://unirateapi.com/)
 
 ## Install privately on macOS
 
@@ -49,6 +49,8 @@ npm run dev
 `npm run dev` builds the extension and registers it with Raycast. You only need to do this once for installation; the extension remains available after the development process stops. Run it again only when you want Raycast to pick up source changes with live reload.
 
 After it appears in Raycast, search for **Currency Exchange for Yuan**. You can assign a global hotkey in Raycast Settings → Extensions.
+
+To configure permanent pinned results and their order, open the extension preferences and edit **Pinned Currencies**. For example, `USD,EUR,GBP,AUD,CAD` displays USD first, followed by EUR, GBP, AUD, and CAD.
 
 ## Verify the build
 

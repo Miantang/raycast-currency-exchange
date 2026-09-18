@@ -1,5 +1,11 @@
 # Currency Exchange Changelog
 
+## [Improve Amount Results and Pins] - 2026-09-18
+
+- Add the source currency as a dedicated first result row.
+- Copy numeric results with exactly two decimal places.
+- Configure permanent pinned currencies and their order from extension preferences.
+
 ## [Add Private macOS Installer] - 2026-09-18
 
 - Package the extension source and a one-time `install.command` in GitHub Actions.
